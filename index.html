@@ -1,211 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SaaS Industry Newsletter</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 40px 30px;
-            text-align: center;
-        }
-        .header h1 {
-            color: #ffffff;
-            margin: 0;
-            font-size: 28px;
-            font-weight: 700;
-        }
-        .header p {
-            color: #e0e7ff;
-            margin: 10px 0 0 0;
-            font-size: 14px;
-        }
-        .content {
-            padding: 30px;
-        }
-        .intro {
-            font-size: 16px;
-            line-height: 1.6;
-            color: #374151;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-        .section {
-            margin-bottom: 30px;
-        }
-        .section-title {
-            color: #667eea;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-        }
-        .section-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
-        .section-content {
-            color: #4b5563;
-            font-size: 15px;
-            line-height: 1.7;
-        }
-        .highlight {
-            background-color: #fef3c7;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-weight: 600;
-        }
-        .stat {
-            color: #667eea;
-            font-weight: 700;
-        }
-        .footer {
-            background-color: #f9fafb;
-            padding: 25px 30px;
-            text-align: center;
-            border-top: 1px solid #e5e7eb;
-        }
-        .footer p {
-            color: #6b7280;
-            font-size: 13px;
-            margin: 5px 0;
-        }
-        .divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, #e5e7eb, transparent);
-            margin: 25px 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaaS Industry Pulse – Weekly Newsletter</title>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --text: #1f2937;
+      --accent: #6366f1;
+      --card-bg: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 720px;
+      width: 100%;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    header p {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+
+    .issue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .issue {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .issue:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .issue-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .issue-meta {
+      color: #9ca3af;
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 SaaS Industry Pulse</h1>
-            <p>Your Weekly Update on AI, M&A, and Market Trends</p>
-        </div>
-        
-        <div class="content">
-            <div class="intro">
-                The SaaS landscape is experiencing seismic shifts as AI transforms the industry from the ground up. This week brings significant funding announcements, major acquisitions, and warnings that traditional SaaS may face obsolescence within years. Here's what you need to know.
-            </div>
+  <div class="container">
+    <header>
+      <h1>🚀 SaaS Industry Pulse</h1>
+      <p>Your Weekly Read on AI, Markets, and the Future of SaaS</p>
+    </header>
 
-            <div class="section">
-                <div class="section-title">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                    </svg>
-                    Record Funding in AI-Driven SaaS
-                </div>
-                <div class="section-content">
-                    Investors are betting big on AI-enhanced SaaS platforms, with over <span class="stat">$1 billion raised</span> across multiple funding rounds. Companies like Vercel, Glean, and Tipalti are leading the charge, demonstrating that the market's appetite for AI-driven solutions remains robust despite broader economic uncertainty. This capital influx signals strong confidence in SaaS companies that successfully integrate artificial intelligence into their core offerings.
-                </div>
-            </div>
+    <main>
+      <div class="issue-list">
+        <a href="week-1/index.html" class="issue">
+          <div class="issue-title">Issue #1 – AI Reshaping the SaaS Landscape</div>
+          <div class="issue-meta">Published October 10, 2025</div>
+        </a>
 
-            <div class="divider"></div>
+        <a href="week-2/index.html" class="issue">
+          <div class="issue-title">Issue #2 – M&A Wave and the Rise of AI-Native Platforms</div>
+          <div class="issue-meta">Coming Soon</div>
+        </a>
+      </div>
+    </main>
 
-            <div class="section">
-                <div class="section-title">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                    </svg>
-                    M&A Activity Accelerates
-                </div>
-                <div class="section-content">
-                    The consolidation wave continues with major deals reshaping the competitive landscape. Diginex acquired Resulticks for <span class="stat">$2 billion</span>, while Everstone Capital purchased Wingify for <span class="stat">$200 million</span>. Qualtrics and Zeta are also making strategic moves through acquisitions. This heightened M&A activity reflects companies' urgency to acquire capabilities quickly rather than build them organically, particularly in AI and advanced analytics.
-                </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="section">
-                <div class="section-title">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    The 2028 Obsolescence Warning
-                </div>
-                <div class="section-content">
-                    Argon & Co has issued a stark prediction: <span class="highlight">traditional SaaS could become obsolete by 2028</span> due to AI-driven innovation. This forecast emphasizes the urgent need for enterprises to adapt their SaaS strategies or risk falling behind. Companies are being urged to reinvent how they use SaaS platforms, moving beyond conventional software implementations to AI-native approaches that fundamentally transform business operations.
-                </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="section">
-                <div class="section-title">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    Strategic Platform Updates
-                </div>
-                <div class="section-content">
-                    Redis is strengthening its AI capabilities by acquiring Featureform, enabling real-time AI data processing that will power next-generation applications. Meanwhile, SAP has launched an integrated business suite that combines AI, data analytics, and enterprise applications to deliver enhanced operational intelligence. These moves demonstrate how established players are racing to embed AI deeply into their platforms rather than treating it as an add-on feature.
-                </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="section">
-                <div class="section-title">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                    </svg>
-                    Security Vulnerabilities Persist
-                </div>
-                <div class="section-content">
-                    SaaS breaches are increasingly linked to token theft, exposing critical vulnerabilities in OAuth and API security frameworks. As companies rush to integrate AI capabilities, security teams must remain vigilant about authentication mechanisms and access controls. The rapid pace of innovation cannot come at the expense of robust security practices, particularly as SaaS platforms handle ever-more sensitive data.
-                </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="section">
-                <div class="section-title">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    The Talent War Intensifies
-                </div>
-                <div class="section-content">
-                    The race for AI talent continues to drive industry dynamics, with companies competing fiercely for engineers and data scientists who can bridge the gap between traditional SaaS and AI-native platforms. This talent shortage is accelerating consolidation as smaller companies without the resources to compete for top talent opt for acquisition by larger players with deeper pockets.
-                </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="section">
-                <div class="section-title">
-                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                    </svg>
-                    OpenAI Enters the Arena
-                </div>
-                <div class="section-content">
-                    OpenAI's entrance into the SaaS market represents a significant competitive threat to established players like Salesforce. With its advanced AI capabilities and strong brand recognition, OpenAI could disrupt traditional SaaS business models by offering AI-first alternatives that fundamentally reimagine how enterprise software operates. Incumbents must innovate rapidly to defend their market positions.
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p><strong>What This Means for You</strong></p>
-            <p>The SaaS industry is at an inflection point. Companies must choose: evolve toward AI-native platforms or risk obsolescence. The next three years will determine which players thrive in the new landscape.</p>
-        </div>
-    </div>
+    <footer>
+      © 2025 SaaS Industry Pulse · Curated by Junaid Ahmed
+    </footer>
+  </div>
 </body>
 </html>
