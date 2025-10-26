@@ -1,1 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embeddings — Explained Simply (For Builders)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base styles */
+        :root {
+            --bg-color: #fefefe;
+            --text-color: #333;
+            --heading-color: #222;
+            --meta-color: #666;
+            --border-color: #eee;
+            --accent-color: #0066cc;
+            --code-bg: #f6f8fa;
+            --blockquote-border: #ddd;
+            --blockquote-color: #555;
+            --container-bg: transparent;
+            --shadow: 0 2px 10px rgba(0,0,0,0.05);
+            --check-color: #10b981;
+        }
 
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --heading-color: #f0f0f0;
+            --meta-color: #aaa;
+            --border-color: #333;
+            --accent-color: #4dabf7;
+            --code-bg: #2d2d2d;
+            --blockquote-border: #444;
+            --blockquote-color: #bbb;
+            --container-bg: #222;
+            --shadow: 0 2px 10px rgba(0,0,0,0.2);
+            --check-color: #34d399;
+        }
+
+        .half-white-mode {
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+            --heading-color: #222;
+            --meta-color: #666;
+            --border-color: #e9ecef;
+            --accent-color: #0066cc;
+            --code-bg: #f1f3f5;
+            --blockquote-border: #ced4da;
+            --blockquote-color: #555;
+            --container-bg: #ffffff;
+            --shadow: 0 2px 15px rgba(0,0,0,0.08);
+            --check-color: #059669;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Container for optimal reading width */
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px;
+            background-color: var(--container-bg);
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Theme toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .theme-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            padding: 5px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        /* Header styles */
+        header {
+            padding: 4rem 0 2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: var(--heading-color);
+        }
+        
+        .meta {
+            color: var(--meta-color);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Typography for optimal readability */
+        article {
+            font-size: 1.125rem;
+            color: var(--text-color);
+            padding-bottom: 2rem;
+        }
+        
+        p {
+            margin-bottom: 1.5rem;
+            text-align: justify;
+            hyphens: auto;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin: 2.5rem 0 1.2rem;
+            font-weight: 600;
+            color: var(--heading-color);
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        
+        /* Check list items */
+        .check-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .check-list li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .check-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--check-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--blockquote-border);
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: var(--blockquote-color);
+        }
+        
+        /* Code blocks */
+        pre, code {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
+            font-size: 0.9rem;
+            background-color: var(--code-bg);
+            border-radius: 4px;
+        }
+        
+        pre {
+            padding: 1.2rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        code {
+            padding: 0.2rem 0.4rem;
+        }
+        
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 2rem auto;
+            border-radius: 4px;
+        }
+        
+        figcaption {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--meta-color);
+            margin-top: 0.5rem;
+        }
+        
+        /* Links */
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        
+        a:hover {
+            border-bottom: 1px solid var(--accent-color);
+        }
+        
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--meta-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            article {
+                font-size: 1.05rem;
+            }
+            
+            p {
+                text-align: left;
+            }
+            
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 6px 12px;
+            }
+            
+            .theme-btn {
+                font-size: 1rem;
+                width: 32px;
+                height: 32px;
+            }
+        }
+        
+        /* Focus styles for accessibility */
+        a:focus, button:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+        
+        /* Selection color */
+        ::selection {
+            background-color: rgba(0, 102, 204, 0.3);
+        }
+        
+        /* Concept boxes */
+        .concept-box {
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .concept-box h3 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+    </style>
+    
+    <!-- Load Inter font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="half-white-mode">
+    <div class="theme-toggle">
+        <button class="theme-btn" id="lightMode" title="Light Mode">
+            <i class="fas fa-sun"></i>
+        </button>
+        <button class="theme-btn" id="darkMode" title="Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>Embeddings — Explained Simply (For Builders)</h1>
+            <div class="meta">
+                <span>By Junaid Mirani</span> • 
+                <span>oct 16, 2025</span> • 
+                <span>6 min read</span>
+            </div>
+        </header>
+        
+        <article>
+            <p>Embeddings are how machines give meaning to things they can't naturally understand — words, images, users, even code. They turn discrete stuff (like "apple" or "banana") into numbers that preserve relationships. It's one of those ideas that seems small until you realize it underpins everything from search to GPT to recommendation engines.</p>
+            
+            <ul class="check-list">
+                <li>Embeddings are how machines give meaning to things they can't naturally understand</li>
+                <li>They turn discrete stuff into numbers that preserve relationships</li>
+                <li>This simple concept underpins everything from search to GPT to recommendation engines</li>
+            </ul>
+            
+            <h2>The Core Idea</h2>
+            
+            <p>Computers don't understand words. They understand numbers. So we give each word a numerical representation — a vector — in some high-dimensional space. And we train those vectors so that similar things end up close together.</p>
+            
+            <div class="concept-box">
+                <h3>Example: Semantic Relationships</h3>
+                <p>In a well-trained embedding space:</p>
+                <pre>vector("king") - vector("man") + vector("woman") ≈ vector("queen")</pre>
+                <p>It's not math magic. It's pattern geometry.</p>
+            </div>
+            
+            <h2>How It Works</h2>
+            
+            <ul class="check-list">
+                <li>Each item (word, image, doc) starts as a random vector of numbers</li>
+                <li>The model learns which vectors should move closer or farther apart based on context</li>
+                <li>Over time, words used in similar ways end up near each other</li>
+                <li>The result: meaning through proximity</li>
+            </ul>
+            
+            <p>If two words appear in similar places, the model learns they likely mean similar things. It's the same way humans learn context — not by definition, but by usage.</p>
+            
+            <h2>Why It's Useful</h2>
+            
+            <ul class="check-list">
+                <li>Once you have embeddings, you can measure similarity easily</li>
+                <li>The dot product or cosine similarity between two vectors tells you how related they are</li>
+            </ul>
+            
+            <p>That powers:</p>
+            <ul>
+                <li>Semantic search (find docs about a topic, not just matching keywords)</li>
+                <li>Recommendations ("users like you liked...")</li>
+                <li>Clustering</li>
+                <li>Retrieval-augmented generation (RAG)</li>
+            </ul>
+            
+            <p>You can think of embeddings as the map of meaning your models navigate.</p>
+            
+            <h2>How They're Trained</h2>
+            
+            <p>In language models, embeddings are learned during training — each token gets an embedding vector. In standalone use (like search), we fine-tune embedding models (e.g., OpenAI's text-embedding-3-large) to position semantically similar sentences close together.</p>
+            
+            <div class="concept-box">
+                <h3>Training Process</h3>
+                <p>Behind the scenes, the loss function teaches the model:</p>
+                <ul>
+                    <li>"These two things are similar → pull them closer."</li>
+                    <li>"These two are unrelated → push them apart."</li>
+                </ul>
+                <p>This is usually done with a contrastive loss — a gentle tug-of-war between neighbors and strangers.</p>
+            </div>
+            
+            <h2>Dimensionality</h2>
+            
+            <p>An embedding is just a list of numbers, maybe 768 or 1536 long. Each dimension doesn't have human meaning; together they form patterns of meaning. It's like describing someone not with words but by thousands of silent coordinates.</p>
+            
+            <h2>Applications You Already Use</h2>
+            
+            <ul class="check-list">
+                <li>Search ("find me docs like this one")</li>
+                <li>Recommendation engines</li>
+                <li>Image-text alignment (CLIP)</li>
+                <li>RAG pipelines (retrieving context before generation)</li>
+                <li>Anomaly detection (what doesn't fit this cluster?)</li>
+            </ul>
+            
+            <p>Embeddings are the quiet infrastructure behind "smart" behavior.</p>
+            
+            <h2>Why It's Beautiful</h2>
+            
+            <p>It's the closest thing we've built to machine intuition. Not rules, not symbols — just a space where meaning has shape. And every LLM you've ever used starts by looking up these shapes before it even starts thinking.</p>
+            
+            <h2>Tip for Builders</h2>
+            
+            <ul class="check-list">
+                <li>Don't treat embeddings as "AI magic."</li>
+                <li>Think of them as coordinates in a language-shaped universe.</li>
+                <li>The closer two things are, the more context they share.</li>
+                <li>You can search, cluster, or reason — all by comparing distances.</li>
+            </ul>
+            
+            <blockquote>
+                Learning to use embeddings is the first step from "prompting" to engineering.
+            </blockquote>
+        </article>
+        
+        <footer>
+            <p>© 2025 Junaid Mirani Blog. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const lightModeBtn = document.getElementById('lightMode');
+            const darkModeBtn = document.getElementById('darkMode');
+            const body = document.body;
+            
+            // Set initial active button
+            darkModeBtn.classList.add('active');
+            
+            // Light mode (half-white) button click
+            lightModeBtn.addEventListener('click', function() {
+                body.classList.remove('dark-mode');
+                body.classList.add('half-white-mode');
+                lightModeBtn.classList.add('active');
+                darkModeBtn.classList.remove('active');
+            });
+            
+            // Dark mode button click
+            darkModeBtn.addEventListener('click', function() {
+                body.classList.remove('half-white-mode');
+                body.classList.add('dark-mode');
+                darkModeBtn.classList.add('active');
+                lightModeBtn.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
