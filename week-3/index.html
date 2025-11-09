@@ -1,0 +1,1072 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>Building a Transformer Model from Scratch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Canela:wght@300;400;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        .font-canela { font-family: 'Canela', serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .hero-gradient {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .backdrop-blur {
+            backdrop-filter: blur(8px);
+        }
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+        .toc-link {
+            transition: all 0.2s ease;
+        }
+        .toc-link:hover {
+            transform: translateX(4px);
+        }
+        .component-card {
+            transition: all 0.3s ease;
+        }
+        .component-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+    </style>
+  <base target="_blank">
+</head>
+
+  <body class="font-inter bg-gray-50 smooth-scroll overflow-x-hidden">
+    <!-- Fixed Table of Contents -->
+    <nav id="toc" class="hidden fixed left-0 top-0 h-full w-80 bg-white shadow-lg z-40 overflow-y-auto border-r border-gray-200 transform -translate-x-full transition-transform duration-300 lg:translate-x-0">
+      <div class="p-6">
+        <h3 class="font-canela text-lg font-bold text-gray-900 mb-4">Contents</h3>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a href="#introduction" class="toc-link block py-2 px-3 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md">1. Introduction to Transformers</a>
+          </li>
+          <li>
+            <a href="#foundations" class="toc-link block py-2 px-3 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md">2. Essential Foundations</a>
+          </li>
+          <li>
+            <a href="#encoder" class="toc-link block py-2 px-3 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md">3. The Encoder Implementation</a>
+          </li>
+          <li>
+            <a href="#decoder" class="toc-link block py-2 px-3 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md">4. The Decoder Implementation</a>
+          </li>
+          <li>
+            <a href="#assembly" class="toc-link block py-2 px-3 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md">5. Assembling the Model</a>
+          </li>
+          <li>
+            <a href="#training" class="toc-link block py-2 px-3 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md">6. Data Preparation &amp; Training</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Toggle button for mobile -->
+    <button id="toc-toggle" class="lg:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded shadow">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-screen">
+      <!-- Hero Section -->
+      <section class="hero-gradient relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+          <img src="https://kimi-web-img.moonshot.cn/img/camo.githubusercontent.com/d0ab6029f2e761582c8bbfd0a0f2e1d9291a28ec" alt="Abstract neural network architecture visualization" class="w-full h-full object-cover" size="wallpaper" aspect="wide" query="neural network architecture" referrerpolicy="no-referrer" data-modified="1" data-score="0.00"/>
+        </div>
+        <div class="relative z-10 px-8 py-16 lg:px-12">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center max-w-7xl mx-auto">
+            <div>
+              <h1 class="font-canela text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6 text-shadow">
+                <em class="text-blue-600">Building</em> a Transformer Model from Scratch
+              </h1>
+              <p class="text-xl text-gray-700 leading-relaxed mb-8">
+                A comprehensive guide to implementing encoder-decoder Transformer architectures with PyTorch, designed for beginners seeking deep understanding.
+              </p>
+              <div class="flex flex-wrap gap-4">
+                <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
+                  <i class="fas fa-code mr-2"></i>PyTorch Implementation
+                </span>
+                <span class="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium">
+                  <i class="fas fa-brain mr-2"></i>Neural Architecture
+                </span>
+              </div>
+            </div>
+            <div class="bg-white/80 backdrop-blur p-6 rounded-lg shadow-lg">
+              <h3 class="font-canela text-xl font-bold text-gray-900 mb-4">Key Components</h3>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>Self-Attention</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Positional Encoding</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span>Multi-Head Attention</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span>Feed-Forward Networks</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Introduction Section -->
+      <section id="introduction" class="py-16 px-8 lg:px-12 bg-white">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-8">1. Foundational Concepts: The Transformer Architecture</h2>
+
+          <div class="prose prose-lg max-w-none">
+            <div class="highlight-box p-6 rounded-lg mb-8">
+              <h3 class="font-canela text-2xl font-bold text-gray-900 mb-4">The Core Idea: Encoder-Decoder Model</h3>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                The Transformer model, introduced in the seminal paper <a href="https://arxiv.org/abs/1706.03762" class="text-blue-600 hover:underline" target="_blank">&#34;Attention Is All You Need&#34;</a> by Vaswani et al., fundamentally redefined sequence-to-sequence tasks. At its heart lies an <strong>encoder-decoder architecture</strong>.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+              <div class="component-card bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                  <i class="fas fa-forward text-blue-600 text-xl"></i>
+                </div>
+                <h4 class="font-bold text-lg text-gray-900 mb-2">Encoder</h4>
+                <p class="text-gray-600 text-sm">Processes input sequence to create rich contextual representations</p>
+              </div>
+              <div class="component-card bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                  <i class="fas fa-eye text-green-600 text-xl"></i>
+                </div>
+                <h4 class="font-bold text-lg text-gray-900 mb-2">Self-Attention</h4>
+                <p class="text-gray-600 text-sm">Enables parallel processing while capturing long-range dependencies</p>
+              </div>
+              <div class="component-card bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                  <i class="fas fa-backward text-purple-600 text-xl"></i>
+                </div>
+                <h4 class="font-bold text-lg text-gray-900 mb-2">Decoder</h4>
+                <p class="text-gray-600 text-sm">Generates output sequence autoregressively</p>
+              </div>
+            </div>
+
+            <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">Key Components Overview</h3>
+
+            <div class="overflow-x-auto mb-8">
+              <table class="w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Component</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Role</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Key Characteristics</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <tr>
+                    <td class="px-6 py-4 font-medium text-gray-900">Input Embeddings</td>
+                    <td class="px-6 py-4 text-gray-600">Converts discrete tokens to continuous vectors</td>
+                    <td class="px-6 py-4 text-gray-600">Learned during training; maps to d_model-dimensional space</td>
+                  </tr>
+                  <tr>
+                    <td class="px-6 py-4 font-medium text-gray-900">Positional Encoding</td>
+                    <td class="px-6 py-4 text-gray-600">Injects sequence order information</td>
+                    <td class="px-6 py-4 text-gray-600">Uses sine/cosine functions to address permutation-invariance</td>
+                  </tr>
+                  <tr>
+                    <td class="px-6 py-4 font-medium text-gray-900">Multi-Head Attention</td>
+                    <td class="px-6 py-4 text-gray-600">Enables parallel attention across subspaces</td>
+                    <td class="px-6 py-4 text-gray-600">Splits d_model into multiple heads for diverse representation</td>
+                  </tr>
+                  <tr>
+                    <td class="px-6 py-4 font-medium text-gray-900">Feed-Forward Networks</td>
+                    <td class="px-6 py-4 text-gray-600">Introduces non-linearity and processes attention outputs</td>
+                    <td class="px-6 py-4 text-gray-600">Two-layer network with ReLU activation</td>
+                  </tr>
+                  <tr>
+                    <td class="px-6 py-4 font-medium text-gray-900">Residual Connections &amp; Layer Norm</td>
+                    <td class="px-6 py-4 text-gray-600">Stabilizes training and enables deep networks</td>
+                    <td class="px-6 py-4 text-gray-600">Skip connections with normalization after residual</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PyTorch Foundations Section -->
+      <section id="foundations" class="py-16 px-8 lg:px-12 bg-gray-50">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-8">2. Essential PyTorch Foundations</h2>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white p-8 rounded-lg shadow-md">
+              <h3 class="font-canela text-2xl font-bold text-gray-900 mb-6">Core PyTorch Concepts</h3>
+
+              <div class="space-y-6">
+                <div>
+                  <h4 class="font-bold text-lg text-gray-900 mb-2">Tensors</h4>
+                  <p class="text-gray-600 text-sm mb-3">The fundamental multi-dimensional array structure in PyTorch, similar to NumPy arrays but with GPU acceleration capabilities.</p>
+                  <div class="code-block p-3 rounded text-xs">
+                    <code>import torch<br/>
+# Create a tensor<br/>
+x = torch.tensor([[1, 2], [3, 4]])</code>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-bold text-lg text-gray-900 mb-2">nn.Module</h4>
+                  <p class="text-gray-600 text-sm mb-3">Base class for all neural network modules. Every component of your Transformer will inherit from this class.</p>
+                  <div class="code-block p-3 rounded text-xs">
+                    <code>class MyModule(nn.Module):<br/>
+  def __init__(self):<br/>
+    super().__init__()<br/>
+    self.layer = nn.Linear(10, 5)</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-lg shadow-md">
+              <h3 class="font-canela text-2xl font-bold text-gray-900 mb-6">Key Operations</h3>
+
+              <div class="space-y-6">
+                <div>
+                  <h4 class="font-bold text-lg text-gray-900 mb-2">Matrix Multiplication</h4>
+                  <p class="text-gray-600 text-sm mb-3">Core to attention mechanisms. Use
+                    <code class="bg-gray-100 px-1 rounded">torch.matmul()</code> or
+                    <code class="bg-gray-100 px-1 rounded">@</code> operator.
+                  </p>
+                  <div class="code-block p-3 rounded text-xs">
+                    <code># Attention calculation<br/>
+scores = (Q @ K.transpose(-2, -1)) / sqrt(d_k)</code>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-bold text-lg text-gray-900 mb-2">Tensor Reshaping</h4>
+                  <p class="text-gray-600 text-sm mb-3">Essential for multi-head attention implementation and dimension management.</p>
+                  <div class="code-block p-3 rounded text-xs">
+                    <code># Reshape for multi-head attention<br/>
+x = x.view(batch_size, seq_len, num_heads, d_k)<br/>
+x = x.transpose(1, 2)</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white p-8 rounded-lg shadow-md">
+            <h3 class="font-canela text-2xl font-bold text-gray-900 mb-4">Essential PyTorch Layers</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div class="component-card p-4 border border-gray-200 rounded-lg">
+                <h4 class="font-bold text-gray-900 mb-2">nn.Linear</h4>
+                <p class="text-sm text-gray-600">Fully connected layer for linear transformations</p>
+              </div>
+              <div class="component-card p-4 border border-gray-200 rounded-lg">
+                <h4 class="font-bold text-gray-900 mb-2">nn.Dropout</h4>
+                <p class="text-sm text-gray-600">Regularization layer to prevent overfitting</p>
+              </div>
+              <div class="component-card p-4 border border-gray-200 rounded-lg">
+                <h4 class="font-bold text-gray-900 mb-2">nn.ReLU</h4>
+                <p class="text-sm text-gray-600">Activation function for introducing non-linearity</p>
+              </div>
+              <div class="component-card p-4 border border-gray-200 rounded-lg">
+                <h4 class="font-bold text-gray-900 mb-2">nn.Softmax</h4>
+                <p class="text-sm text-gray-600">Converts logits to probability distributions</p>
+              </div>
+              <div class="component-card p-4 border border-gray-200 rounded-lg">
+                <h4 class="font-bold text-gray-900 mb-2">nn.Sequential</h4>
+                <p class="text-sm text-gray-600">Container for stacking layers sequentially</p>
+              </div>
+              <div class="component-card p-4 border border-gray-200 rounded-lg">
+                <h4 class="font-bold text-gray-900 mb-2">nn.LayerNorm</h4>
+                <p class="text-sm text-gray-600">Layer normalization for training stability</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Encoder Section -->
+      <section id="encoder" class="py-16 px-8 lg:px-12 bg-white">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-8">3. Step-by-Step Implementation: The Encoder</h2>
+
+          <div class="highlight-box p-8 rounded-lg mb-12">
+            <p class="text-lg text-gray-700 leading-relaxed">
+              <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+              The encoder is the first major component of the Transformer, responsible for processing input sequences into rich, contextual representations. It consists of a stack of identical encoder layers.
+            </p>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">3.1 Constructing a Single Encoder Layer</h3>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-brain text-blue-600 text-xl"></i>
+              </div>
+              <h4 class="font-bold text-lg text-gray-900 mb-3">Multi-Head Self-Attention</h4>
+              <p class="text-gray-600 text-sm mb-4">The core mechanism that allows the model to weigh the importance of different tokens in the sequence.</p>
+              <ul class="text-xs text-gray-500 space-y-1">
+                <li>• Create Q, K, V projections</li>
+                <li>• Split into multiple heads</li>
+                <li>• Calculate attention scores</li>
+                <li>• Apply softmax and weighted sum</li>
+              </ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-network-wired text-green-600 text-xl"></i>
+              </div>
+              <h4 class="font-bold text-lg text-gray-900 mb-3">Feed-Forward Network</h4>
+              <p class="text-gray-600 text-sm mb-4">Position-wise network that processes attention outputs with non-linearity.</p>
+              <ul class="text-xs text-gray-500 space-y-1">
+                <li>• Linear expansion (d_model → d_ff)</li>
+                <li>• ReLU activation</li>
+                <li>• Linear projection back</li>
+                <li>• Position-wise application</li>
+              </ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-link text-purple-600 text-xl"></i>
+              </div>
+              <h4 class="font-bold text-lg text-gray-900 mb-3">Residual &amp; Layer Norm</h4>
+              <p class="text-gray-600 text-sm mb-4">Stabilizes training and enables deeper networks through skip connections.</p>
+              <ul class="text-xs text-gray-500 space-y-1">
+                <li>• Skip connections around sub-layers</li>
+                <li>• Layer normalization</li>
+                <li>• Stabilizes gradients</li>
+                <li>• Enables deeper architectures</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-8 rounded-lg mb-8">
+            <h4 class="font-bold text-xl text-gray-900 mb-4">Multi-Head Attention Implementation Steps</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h5 class="font-semibold text-gray-900 mb-3">1. Linear Projections</h5>
+                <div class="code-block p-3 rounded text-xs">
+                  <code>self.q_linear = nn.Linear(d_model, d_model)<br/>
+self.k_linear = nn.Linear(d_model, d_model)<br/>
+self.v_linear = nn.Linear(d_model, d_model)</code>
+                </div>
+              </div>
+              <div>
+                <h5 class="font-semibold text-gray-900 mb-3">2. Multi-Head Split</h5>
+                <div class="code-block p-3 rounded text-xs">
+                  <code>q = q.view(batch_size, -1, num_heads, d_k)<br/>
+q = q.transpose(1, 2)</code>
+                </div>
+              </div>
+              <div>
+                <h5 class="font-semibold text-gray-900 mb-3">3. Attention Calculation</h5>
+                <div class="code-block p-3 rounded text-xs">
+                  <code>scores = (q @ k.transpose(-2, -1))<br/>
+scores = scores / math.sqrt(d_k)<br/>
+attn = nn.Softmax(scores)</code>
+                </div>
+              </div>
+              <div>
+                <h5 class="font-semibold text-gray-900 mb-3">4. Output Combination</h5>
+                <div class="code-block p-3 rounded text-xs">
+                  <code>output = attn @ v<br/>
+output = output.transpose(1, 2)<br/>
+output = output.contiguous()<br/>
+  .view(batch_size, -1, d_model)</code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">3.2 Assembling the Full Encoder Stack</h3>
+
+          <div class="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+            <p class="text-gray-700 leading-relaxed mb-6">
+              The full encoder is created by stacking multiple identical encoder layers. Each layer builds upon the previous one, creating increasingly sophisticated representations of the input sequence.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-3">Stacking Layers</h4>
+                <div class="code-block p-3 rounded text-xs mb-4">
+                  <code>self.layers = nn.ModuleList([<br/>
+  EncoderLayer(d_model, num_heads, d_ff)<br/>
+  for _ in range(num_layers)<br/>
+])</code>
+                </div>
+                <p class="text-sm text-gray-600">Use ModuleList to register multiple layers with PyTorch</p>
+              </div>
+
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-3">Forward Pass</h4>
+                <div class="code-block p-3 rounded text-xs mb-4">
+                  <code>def forward(self, x):<br/>
+  for layer in self.layers:<br/>
+    x = layer(x)<br/>
+  return x</code>
+                </div>
+                <p class="text-sm text-gray-600">Sequentially process input through each layer</p>
+              </div>
+            </div>
+
+            <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+              <p class="text-sm text-blue-800">
+                <i class="fas fa-lightbulb mr-2"></i>
+                <strong>Output Shape:</strong> The final encoder output has shape (batch_size, src_seq_len, d_model), representing the contextualized input sequence.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Decoder Section -->
+      <section id="decoder" class="py-16 px-8 lg:px-12 bg-gray-50">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-8">4. Step-by-Step Implementation: The Decoder</h2>
+
+          <div class="highlight-box p-8 rounded-lg mb-12">
+            <p class="text-lg text-gray-700 leading-relaxed">
+              <i class="fas fa-play-circle text-green-600 mr-2"></i>
+              The decoder generates the output sequence autoregressively, using both the encoder&#39;s context and previously generated tokens. It&#39;s more complex than the encoder with three sub-layers per decoder layer.
+            </p>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">4.1 Constructing a Single Decoder Layer</h3>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-mask text-orange-600 text-xl"></i>
+              </div>
+              <h4 class="font-bold text-lg text-gray-900 mb-3">Masked Self-Attention</h4>
+              <p class="text-gray-600 text-sm mb-4">Prevents looking at future tokens during training.</p>
+              <div class="bg-gray-50 p-3 rounded text-xs">
+                <strong>Mask Creation:</strong>
+                <br/>
+                look_ahead_mask = torch.triu(torch.ones(seq_len, seq_len), diagonal=1)
+                <br/>
+                scores = scores + (look_ahead_mask * -1e9)
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-exchange-alt text-blue-600 text-xl"></i>
+              </div>
+              <h4 class="font-bold text-lg text-gray-900 mb-3">Cross-Attention</h4>
+              <p class="text-gray-600 text-sm mb-4">Connects encoder outputs with decoder inputs.</p>
+              <div class="bg-gray-50 p-3 rounded text-xs">
+                <strong>Key Concept:</strong>
+                <br/>
+                Q from decoder
+                <br/>
+                K, V from encoder
+                <br/>
+                Attention(Q, K, V) → context
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-network-wired text-green-600 text-xl"></i>
+              </div>
+              <h4 class="font-bold text-lg text-gray-900 mb-3">Feed-Forward &amp; Norm</h4>
+              <p class="text-gray-600 text-sm mb-4">Identical to encoder implementation.</p>
+              <div class="bg-gray-50 p-3 rounded text-xs">
+                <strong>Pattern:</strong>
+                <br/>
+                LayerNorm(x + FFN(x))
+                <br/>
+                Residual connection around FFN
+                <br/>
+                Layer normalization after
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white p-8 rounded-lg shadow-md mb-8">
+            <h4 class="font-bold text-xl text-gray-900 mb-6">Decoder Layer Architecture</h4>
+
+            <div class="space-y-6">
+              <div class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <span class="text-orange-600 font-bold text-sm">1</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Masked Multi-Head Self-Attention</h5>
+                  <p class="text-gray-600 text-sm mb-3">Processes target sequence with look-ahead mask to prevent cheating during training.</p>
+                  <div class="code-block p-3 rounded text-xs">
+                    <code>attn1 = MultiHeadAttention(d_model, num_heads)<br/>
+x = LayerNorm(x + attn1(x, x, x, look_ahead_mask))</code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <span class="text-blue-600 font-bold text-sm">2</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Multi-Head Cross-Attention</h5>
+                  <p class="text-gray-600 text-sm mb-3">Queries from decoder, Keys and Values from encoder output.</p>
+                  <div class="code-block p-3 rounded text-xs">
+                    <code>attn2 = MultiHeadAttention(d_model, num_heads)<br/>
+x = LayerNorm(x + attn2(x, encoder_output, encoder_output))</code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <span class="text-green-600 font-bold text-sm">3</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Position-wise Feed-Forward Network</h5>
+                  <p class="text-gray-600 text-sm mb-3">Identical to encoder implementation for final processing.</p>
+                  <div class="code-block p-3 rounded text-xs">
+                    <code>ffn = FeedForward(d_model, d_ff)<br/>
+x = LayerNorm(x + ffn(x))</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">4.2 Assembling the Full Decoder Stack</h3>
+
+          <div class="bg-white p-8 rounded-lg shadow-md">
+            <p class="text-gray-700 leading-relaxed mb-6">
+              Similar to the encoder, the full decoder is created by stacking multiple decoder layers. The encoder&#39;s output (memory) is passed to every decoder layer for cross-attention.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-3">Decoder Initialization</h4>
+                <div class="code-block p-3 rounded text-xs mb-4">
+                  <code>class TransformerDecoder(nn.Module):<br/>
+  def __init__(self, num_layers, d_model, ...):<br/>
+    super().__init__()<br/>
+    self.layers = nn.ModuleList([<br/>
+      DecoderLayer(...) for _ in range(num_layers)<br/>
+    ])</code>
+                </div>
+              </div>
+
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-3">Forward Method</h4>
+                <div class="code-block p-3 rounded text-xs mb-4">
+                  <code>def forward(self, tgt, memory):<br/>
+  for layer in self.layers:<br/>
+    tgt = layer(tgt, memory)<br/>
+  return tgt</code>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Assembly Section -->
+      <section id="assembly" class="py-16 px-8 lg:px-12 bg-white">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-8">5. Assembling the Complete Transformer Model</h2>
+
+          <div class="highlight-box p-8 rounded-lg mb-12">
+            <p class="text-lg text-gray-700 leading-relaxed">
+              <i class="fas fa-puzzle-piece text-purple-600 mr-2"></i>
+              Now we combine all components into a complete Transformer model. This involves adding input/output embeddings, positional encoding, and connecting the encoder and decoder stacks.
+            </p>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">5.1 Creating Input and Output Embeddings</h3>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <h4 class="font-bold text-lg text-gray-900 mb-4">Source and Target Embeddings</h4>
+              <p class="text-gray-600 text-sm mb-4">Separate embedding layers for input (encoder) and target (decoder) sequences.</p>
+              <div class="code-block p-3 rounded text-xs mb-4">
+                <code>self.src_embed = nn.Embedding(src_vocab_size, d_model)<br/>
+self.tgt_embed = nn.Embedding(tgt_vocab_size, d_model)</code>
+              </div>
+              <p class="text-xs text-gray-500">Embeddings map token IDs to d_model-dimensional vectors</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <h4 class="font-bold text-lg text-gray-900 mb-4">Embedding Scaling</h4>
+              <p class="text-gray-600 text-sm mb-4">Scale embeddings by sqrt(d_model) as per original paper.</p>
+              <div class="code-block p-3 rounded text-xs mb-4">
+                <code># In forward method<br/>
+src_emb = self.src_embed(src) * math.sqrt(d_model)<br/>
+tgt_emb = self.tgt_embed(tgt) * math.sqrt(d_model)</code>
+              </div>
+              <p class="text-xs text-gray-500">Helps maintain appropriate gradient magnitudes</p>
+            </div>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">5.2 Implementing Positional Encoding</h3>
+
+          <div class="bg-white p-8 rounded-lg shadow-md mb-8">
+            <p class="text-gray-700 leading-relaxed mb-6">
+              Positional encoding injects sequence order information using sine and cosine functions of different frequencies.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-3">Positional Encoding Formula</h4>
+                <div class="bg-gray-50 p-4 rounded text-sm">
+                  <strong>Even positions:</strong>
+                  <br/>
+                  PE(pos, 2i) = sin(pos / 10000^(2i/d_model))
+                  <br/>
+                  <br/>
+                  <strong>Odd positions:</strong>
+                  <br/>
+                  PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
+                </div>
+              </div>
+
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-3">Implementation Benefits</h4>
+                <ul class="text-sm text-gray-600 space-y-2">
+                  <li>• Captures relative positions</li>
+                  <li>• Generalizes to unseen sequence lengths</li>
+                  <li>• Periodic functions allow extrapolation</li>
+                  <li>• Fixed rather than learned (efficient)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">5.3 Connecting Encoder and Decoder</h3>
+
+          <div class="bg-gray-50 p-8 rounded-lg mb-8">
+            <h4 class="font-bold text-xl text-gray-900 mb-4">Transformer Forward Pass</h4>
+
+            <div class="space-y-4">
+              <div class="flex items-center gap-4">
+                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span class="text-blue-600 font-bold text-xs">1</span>
+                </div>
+                <span class="text-gray-700">Embed source sequence and add positional encoding</span>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <span class="text-green-600 font-bold text-xs">2</span>
+                </div>
+                <span class="text-gray-700">Pass through encoder stack to get &#34;memory&#34;</span>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                  <span class="text-orange-600 font-bold text-xs">3</span>
+                </div>
+                <span class="text-gray-700">Embed target sequence and add positional encoding</span>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span class="text-purple-600 font-bold text-xs">4</span>
+                </div>
+                <span class="text-gray-700">Pass through decoder stack with encoder memory</span>
+              </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-white rounded-lg border">
+              <div class="code-block p-3 rounded text-xs">
+                <code>def forward(self, src, tgt):<br/>
+  # Encoder<br/>
+  src_emb = self.src_embed(src)<br/>
+  src_pe = self.positional_encoding(src_emb)<br/>
+  memory = self.encoder(src_pe)<br/>
+  <br/>
+  # Decoder<br/>
+  tgt_emb = self.tgt_embed(tgt)<br/>
+  tgt_pe = self.positional_encoding(tgt_emb)<br/>
+  output = self.decoder(tgt_pe, memory)<br/>
+  <br/>
+  return output</code>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">5.4 Final Linear and Softmax Layer</h3>
+
+          <div class="bg-white p-8 rounded-lg shadow-md">
+            <p class="text-gray-700 leading-relaxed mb-6">
+              The final step projects the decoder&#39;s output to vocabulary size and applies softmax for probability distribution.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <i class="fas fa-arrow-right text-blue-600 text-xl"></i>
+                </div>
+                <h4 class="font-bold text-gray-900 mb-2">Linear Projection</h4>
+                <p class="text-sm text-gray-600">d_model → vocab_size</p>
+              </div>
+
+              <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                </div>
+                <h4 class="font-bold text-gray-900 mb-2">Softmax</h4>
+                <p class="text-sm text-gray-600">Convert to probabilities</p>
+              </div>
+
+              <div class="text-center">
+                <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <i class="fas fa-target text-purple-600 text-xl"></i>
+                </div>
+                <h4 class="font-bold text-gray-900 mb-2">Prediction</h4>
+                <p class="text-sm text-gray-600">Select next token</p>
+              </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+              <div class="code-block p-3 rounded text-xs">
+                <code>self.final_linear = nn.Linear(d_model, tgt_vocab_size)<br/>
+self.softmax = nn.Softmax(dim=-1)<br/>
+<br/>
+# In forward method<br/>
+logits = self.final_linear(output)<br/>
+probs = self.softmax(logits)<br/>
+return probs</code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Training Section -->
+      <section id="training" class="py-16 px-8 lg:px-12 bg-gray-50">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-8">6. Data Preparation and Training</h2>
+
+          <div class="highlight-box p-8 rounded-lg mb-12">
+            <p class="text-lg text-gray-700 leading-relaxed">
+              <i class="fas fa-graduation-cap text-green-600 mr-2"></i>
+              With the model architecture complete, we focus on data preparation, mask creation, loss calculation, and the training loop that brings our Transformer to life.
+            </p>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">6.1 Creating a Simple Dataset</h3>
+
+          <div class="bg-white p-8 rounded-lg shadow-md mb-8">
+            <p class="text-gray-700 leading-relaxed mb-6">
+              Start with a simple synthetic dataset like arithmetic problems to verify functionality before moving to complex language data.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-3">Example Dataset</h4>
+                <div class="bg-gray-50 p-4 rounded text-sm mb-4">
+                  <strong>Sample Problems:</strong>
+                  <br/>
+                  &#34;1+1=2&#34;
+                  <br/>
+                  &#34;2+3=5&#34;
+                  <br/>
+                  &#34;4-2=2&#34;
+                  <br/>
+                  &#34;3*4=12&#34;
+                </div>
+                <p class="text-xs text-gray-500">Simple arithmetic for quick verification</p>
+              </div>
+
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-3">Data Processing Steps</h4>
+                <ul class="text-sm text-gray-600 space-y-2">
+                  <li>• Tokenize input and target sequences</li>
+                  <li>• Convert to integer sequences</li>
+                  <li>• Create vocabulary mapping</li>
+                  <li>• Handle padding for batch processing</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">6.2 Generating Masks</h3>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
+              </div>
+              <h4 class="font-bold text-lg text-gray-900 mb-3">Padding Mask</h4>
+              <p class="text-gray-600 text-sm mb-4">Tells model to ignore padding tokens during attention calculation.</p>
+              <div class="bg-gray-50 p-3 rounded text-xs mb-3">
+                <strong>Creation:</strong>
+                <br/>
+                padding_mask = (src != pad_token_id)
+              </div>
+              <p class="text-xs text-gray-500">Applied to encoder and cross-attention</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-eye-slash text-orange-600 text-xl"></i>
+              </div>
+              <h4 class="font-bold text-lg text-gray-900 mb-3">Look-Ahead Mask</h4>
+              <p class="text-gray-600 text-sm mb-4">Prevents decoder from attending to future positions.</p>
+              <div class="bg-gray-50 p-3 rounded text-xs mb-3">
+                <strong>Creation:</strong>
+                <br/>
+                look_ahead_mask = torch.triu(torch.ones(seq_len, seq_len), diagonal=1)
+              </div>
+              <p class="text-xs text-gray-500">Only applied to decoder self-attention</p>
+            </div>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">6.3 Defining Loss Function and Optimizer</h3>
+
+          <div class="bg-white p-8 rounded-lg shadow-md mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-4">Cross-Entropy Loss</h4>
+                <p class="text-gray-600 text-sm mb-4">Standard loss function for sequence generation tasks.</p>
+                <div class="code-block p-3 rounded text-xs mb-4">
+                  <code>criterion = nn.CrossEntropyLoss(<br/>
+  ignore_index=pad_token_id<br/>
+)</code>
+                </div>
+                <p class="text-xs text-gray-500">Ignores padding tokens in loss calculation</p>
+              </div>
+
+              <div>
+                <h4 class="font-bold text-lg text-gray-900 mb-4">Adam Optimizer</h4>
+                <p class="text-gray-600 text-sm mb-4">Adaptive learning rate optimizer well-suited for Transformers.</p>
+                <div class="code-block p-3 rounded text-xs mb-4">
+                  <code>optimizer = optim.Adam(<br/>
+  model.parameters(),<br/>
+  lr=0.0001,<br/>
+  betas=(0.9, 0.98),<br/>
+  eps=1e-9<br/>
+)</code>
+                </div>
+                <p class="text-xs text-gray-500">Hyperparameters from original Transformer paper</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="font-canela text-3xl font-bold text-gray-900 mb-6">6.4 The Training Loop</h3>
+
+          <div class="bg-white p-8 rounded-lg shadow-md">
+            <p class="text-gray-700 leading-relaxed mb-8">
+              The training loop involves repeatedly feeding data, calculating loss, and updating weights through backpropagation.
+            </p>
+
+            <div class="space-y-6">
+              <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span class="text-blue-600 font-bold text-sm">1</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Get Batch of Data</h5>
+                  <p class="text-sm text-gray-600">Load source and target sequences for current batch</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span class="text-green-600 font-bold text-sm">2</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Create Masks</h5>
+                  <p class="text-sm text-gray-600">Generate padding and look-ahead masks for the batch</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span class="text-purple-600 font-bold text-sm">3</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Forward Pass</h5>
+                  <p class="text-sm text-gray-600">Pass data through model to get predictions</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span class="text-orange-600 font-bold text-sm">4</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Calculate Loss</h5>
+                  <p class="text-sm text-gray-600">Compare predictions with target using cross-entropy</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span class="text-red-600 font-bold text-sm">5</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Backward Pass</h5>
+                  <p class="text-sm text-gray-600">Compute gradients using loss.backward()</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span class="text-indigo-600 font-bold text-sm">6</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Update Weights</h5>
+                  <p class="text-sm text-gray-600">Update parameters using optimizer.step()</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                <div class="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span class="text-teal-600 font-bold text-sm">7</span>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Zero Gradients</h5>
+                  <p class="text-sm text-gray-600">Clear gradients for next iteration with optimizer.zero_grad()</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-8 p-6 bg-blue-50 rounded-lg">
+              <h4 class="font-bold text-gray-900 mb-3">Complete Training Loop Example</h4>
+              <div class="code-block p-4 rounded text-xs">
+                <code>for epoch in range(num_epochs):<br/>
+  for batch in data_loader:<br/>
+    src, tgt = batch<br/>
+    <br/>
+    # Create masks<br/>
+    src_mask, tgt_mask = create_masks(src, tgt)<br/>
+    <br/>
+    # Forward pass<br/>
+    output = model(src, tgt, src_mask, tgt_mask)<br/>
+    <br/>
+    # Calculate loss<br/>
+    loss = criterion(output.view(-1, vocab_size), tgt.view(-1))<br/>
+    <br/>
+    # Backward pass<br/>
+    loss.backward()<br/>
+    <br/>
+    # Update weights<br/>
+    optimizer.step()<br/>
+    optimizer.zero_grad()</code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="py-12 px-8 lg:px-12 bg-gray-900 text-white">
+        <div class="max-w-4xl mx-auto text-center">
+          <h3 class="font-canela text-2xl font-bold mb-4">Ready to Build Your Transformer?</h3>
+          <p class="text-gray-300 mb-8">
+            You now have the complete roadmap to implement a Transformer model from scratch. Start with the foundations, build each component step by step, and watch your model come to life.
+          </p>
+          <div class="flex justify-center gap-4 text-sm">
+            <a href="https://arxiv.org/abs/1706.03762" class="text-blue-400 hover:text-blue-300 transition-colors" target="_blank">
+              <i class="fas fa-external-link-alt mr-1"></i>Original Paper
+            </a>
+            <span class="text-gray-600">•</span>
+            <a href="https://pytorch.org/docs/stable/index.html" class="text-blue-400 hover:text-blue-300 transition-colors" target="_blank">
+              <i class="fas fa-external-link-alt mr-1"></i>PyTorch Documentation
+            </a>
+            <span class="text-gray-600">•</span>
+            <a href="https://github.com/huggingface/transformers" class="text-blue-400 hover:text-blue-300 transition-colors" target="_blank">
+              <i class="fas fa-external-link-alt mr-1"></i>Hugging Face Transformers
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+        // Table of Contents Toggle for Mobile
+        const tocToggle = document.getElementById('toc-toggle');
+        const toc = document.getElementById('toc');
+        
+        tocToggle.addEventListener('click', () => {
+            toc.classList.toggle('translate-x-0');
+            toc.classList.toggle('-translate-x-full');
+        });
+
+        // Close TOC when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 1024) {
+                if (!toc.contains(e.target) && !tocToggle.contains(e.target)) {
+                    toc.classList.remove('translate-x-0');
+                    toc.classList.add('-translate-x-full');
+                }
+            }
+        });
+
+        // Table of Contents Links
+        document.querySelectorAll('#toc a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    const offsetTop = targetElement.offsetTop - 20;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // Close TOC on mobile after clicking
+                if (window.innerWidth < 1024) {
+                    toc.classList.remove('translate-x-0');
+                    toc.classList.add('-translate-x-full');
+                }
+            });
+        });
+
+        // Active section highlighting
+        const sections = document.querySelectorAll('section[id]');
+        const tocLinks = document.querySelectorAll('#toc a');
+
+        function updateActiveTocLink() {
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= 100 && rect.bottom >= 100) {
+                    currentSection = section.id;
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('bg-blue-100', 'text-blue-700', 'font-semibold');
+                if (link.getAttribute('href') === '#' + currentSection) {
+                    link.classList.add('bg-blue-100', 'text-blue-700', 'font-semibold');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveTocLink);
+        updateActiveTocLink(); // Initial call
+    </script>
+  
+
+</body></html>
